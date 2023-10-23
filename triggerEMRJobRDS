@@ -1,0 +1,32 @@
+import boto3
+import json
+
+def lambda_handler(event, context):
+    cluster_id = '*cluster id*'
+    steps = [
+        {
+            'Name': '*job name*',
+            'ActionOnFailure': 'CONTINUE',
+            'HadoopJarStep': {
+                'Jar': 'command-runner.jar',
+                'Args': [
+                    'spark-submit',
+                    '--deploy-mode',
+                    'client',
+                    '--master',
+                    'yarn',
+                    '--class',
+                    'com.example.sparkjob.Main',
+                    's3://wordcounterged/wordOccurencies.py',
+                    'arg1',
+                    'arg2',
+                    'arg3'
+                ]
+            }
+        }
+    ]
+    emr = boto3.client('emr')
+    response = emr.add_job_flow_steps(JobFlowId=cluster_id, Steps=steps)
+    print(response)
+    
+    return response
