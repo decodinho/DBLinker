@@ -1,0 +1,28 @@
+import boto3
+from pyspark.sql import SparkSession
+
+spark = SparkSession.builder.appName("connection").getOrCreate()
+
+df = spark.read.option("header",True).option("inferSchema",True).csv('s3://*ARN to your file*')
+df.printSchema()
+
+
+url = "jdbc:postgresql://**bdd endpoint**:5432/database-1-testdblinker"
+table = "*your csv name*"
+driver = "org.postgresql.Driver"
+user = "decodeur"
+password = "XXXXXXX"
+
+rdd = spark.read.format("jdbc").option("driver",driver).option("url",url).option("dbtable",table).option("user",user).option("password",password).load()
+display(rdd)# just to display the dataframe
+
+#now let's query the datas in the RDS database. we can evolve the system in the extend that queries could be dynamic. But for now let's assume that query are constant
+
+rddQuery = spark.read.format("jdbc").option("driver",driver).option("url",url).option("query","SELECT colx,coly FROM *your_table_name* WHERE country = '**'").option("user",user).option("password",password).load()
+display(rddQuery)
+
+
+
+
+
+
